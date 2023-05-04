@@ -1,29 +1,31 @@
 #include <iostream>
 #include "graph.hpp"
-#include <limits.h>
-
-#define INF 0x3f3f3f3f
 
 using namespace std;
 
-int main(int argc, char const *argv[]) {
-    // int N; //numero de cidades
-    // int A; //numero de estradas conectando pares de cidades
-    // int X1, X2, D;
+int main() {
+    int numero_cidades;
+    int numero_estradas;
+    int X1, X2, distancia;
 
-    Graph grafo(5);
+    cin >> numero_cidades >> numero_estradas;
 
-    grafo.adicionarAresta(0, 1, 4);
-    grafo.adicionarAresta(0, 2, 8);
-    grafo.adicionarAresta(1, 2, 2);
-    grafo.adicionarAresta(1, 3, 5);
-    grafo.adicionarAresta(2, 3, 5);
-    grafo.adicionarAresta(2, 4, 9);
-    grafo.adicionarAresta(3, 4, 4);
+    Graph grafo(numero_cidades);
 
-    // Executa o algoritmo de Dijkstra a partir do vértice 0.
-    grafo.dijkstra(0);
+    for(int i=0 ; i<numero_estradas ; i++){
+        cin >> X1 >> X2 >> distancia;
+        if(distancia%2 != 0)
+            continue;
+        grafo.adicionarAresta(X1-1,X2-1,distancia);
+    }
 
+    grafo.dijkstra(0,numero_cidades-1);
 
-    return 0;
+    // grafo.adicionarAresta(1, 2, 1);
+    // grafo.adicionarAresta(2, 3, 2);
+    // grafo.adicionarAresta(2, 5, 15);
+    // grafo.adicionarAresta(3, 5, 1);
+    // grafo.adicionarAresta(3, 4, 4);
+    // grafo.adicionarAresta(5, 4, 3);
+    // grafo.dijkstra(1);
 }

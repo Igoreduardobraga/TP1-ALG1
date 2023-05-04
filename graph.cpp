@@ -9,41 +9,47 @@ Graph::Graph(int num_vertices) {
     this->num_vertices = num_vertices;
 
     //Alocação dinâmica da matriz de adjacencia
-    matriz_adjacencia = new vector<pair<int,int>>[num_vertices];
+    lista_adjacencia.resize(num_vertices);
 }
 
-Graph::~Graph(){
-    //Desalocação de memoria da matriz de adjacencia
-    delete [] matriz_adjacencia;
+// Graph::~Graph(){
+//     //Desalocação de memoria da matriz de adjacencia
+//     delete lista_adjacencia;
+// }
+
+void Graph::adicionarAresta(int v, int u, int w){
+    lista_adjacencia[v].push_back({u,w}); 
 }
 
-void Graph::adicionarAresta(int u, int v, int w){
-    matriz_adjacencia[u].push_back(make_pair(v,w));
-    matriz_adjacencia[v].push_back(make_pair(u,w));
-}
-
-void Graph::dijkstra(int vertice_origem){
-    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> fila_prioridade;
-    distancia = vector<int>(num_vertices, INF);
-    fila_prioridade.push(make_pair(0,vertice_origem));
+void Graph::dijkstra(int vertice_origem, int vertice_destino){
+    priority_queue<pair<int,int>> fila_prioridade;
+    distancia = vector<int>(num_vertices,INF);
     distancia[vertice_origem] = 0;
 
+    fila_prioridade.push({0,vertice_origem});
+
     while(!fila_prioridade.empty()){
-        int u = fila_prioridade.top().second;
+        int v = fila_prioridade.top().second;
+        int w = -fila_prioridade.top().first;
         fila_prioridade.pop();
 
-        for(auto i = matriz_adjacencia[u].begin() ; i!=matriz_adjacencia[u].end() ; i++){
-            int v = (*i).first;
-            int largura = (*i).second;
+        //Ignora a atualização de u caso um caminho mais curto tenha sido encontrado
+        if(w!=distancia[v])
+            continue;
 
-            if(distancia[v] > distancia[u] + largura){
-                distancia[v] = distancia[u] + largura;
-                fila_prioridade.push(make_pair(distancia[v], v));
+        for(auto vizinho : lista_adjacencia[v]){
+            int u = vizinho.first;
+            int dist = vizinho.second;
+            if ((distancia[v] + dist) % 2 == 0) {
+                if(distancia[u]>distancia[v]+dist){
+                    distancia[u] = distancia[v] + dist;
+                    fila_prioridade.push({-distancia[u],u});
+                }
             }
         }
     }
-
-    cout << "Distancias minimas de " << vertice_origem << ":\n";
-        for (int i = 0; i < num_vertices; i++)
-            cout << i << "\t" << distancia[i] << endl;
+    if(distancia[vertice_destino]!=INF)
+        cout << distancia[vertice_destino] << endl;
+    else
+        cout << -1 << endl;
 }

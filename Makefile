@@ -1,7 +1,7 @@
 # Makefile
 
 # Compiler options
-CXX = g++
+CXX = g++ -g
 CXXFLAGS = -std=c++11 -Wall
 
 # Source files
