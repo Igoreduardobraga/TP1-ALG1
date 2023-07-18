@@ -8,48 +8,63 @@ Graph::Graph(int num_vertices) {
     //inicializando a variavel número de vertices
     this->num_vertices = num_vertices;
 
-    //Alocação dinâmica da matriz de adjacencia
-    lista_adjacencia.resize(num_vertices);
+    //Determinando o tamanho do grafo com base no numero de vertices
+    grafo.resize(num_vertices*2);
 }
 
-// Graph::~Graph(){
-//     //Desalocação de memoria da matriz de adjacencia
-//     delete lista_adjacencia;
-// }
+void Graph::adicionarAresta(int vertice1, int vertice2, int peso){
+    //Transforma os indices dos vertices em par e impar
+    int vertice1_par = vertice1*2;
+    int vertice2_par = vertice2*2;
+    int vertice1_impar = vertice1*2+1;
+    int vertice2_impar = vertice2*2+1;
 
-void Graph::adicionarAresta(int v, int u, int w){
-    lista_adjacencia[v].push_back({u,w}); 
+    //Criando o grafo G1 a partir dos vertices e peso de G    
+    //Adiciona aresta nos dois sentidos, para garantir que o grafo seja não direcionado
+    grafo[vertice1_par].push_back({ vertice2_impar, peso });
+    grafo[vertice1_impar].push_back({ vertice2_par, peso });
+    grafo[vertice2_par].push_back({ vertice1_impar, peso });
+    grafo[vertice2_impar].push_back({ vertice1_par, peso });
 }
 
 void Graph::dijkstra(int vertice_origem, int vertice_destino){
-    priority_queue<pair<int,int>> fila_prioridade;
-    distancia = vector<int>(num_vertices,INF);
-    distancia[vertice_origem] = 0;
+    priority_queue<par_vertice_distancia> fila_prioridade;
+    distancia = vector<int>(num_vertices*2, INF);   //Atualiza todas as distancias como infinito
 
-    fila_prioridade.push({0,vertice_origem});
+    //Transforma o vertice de origem e destino em par
+    int index_vertice_origem_par = 2*vertice_origem;
+    int index_vertice_destino_par = 2*vertice_destino;
+
+    distancia[index_vertice_origem_par] = 0;
+
+    //Insere o vertice inicial com distancia 0
+    fila_prioridade.push({index_vertice_origem_par,0});
 
     while(!fila_prioridade.empty()){
-        int v = fila_prioridade.top().second;
-        int w = -fila_prioridade.top().first;
+        int vertice_atual = fila_prioridade.top().vertice;   //vertice com a menor distancia
+        int w = -fila_prioridade.top().dist;
         fila_prioridade.pop();
 
-        //Ignora a atualização de u caso um caminho mais curto tenha sido encontrado
-        if(w!=distancia[v])
+        //Se a distância atual já foi atualizada, então não precisamos processar esse vizinho novamente
+        if(w!=distancia[vertice_atual])
             continue;
 
-        for(auto vizinho : lista_adjacencia[v]){
-            int u = vizinho.first;
-            int dist = vizinho.second;
-            if ((distancia[v] + dist) % 2 == 0) {
-                if(distancia[u]>distancia[v]+dist){
-                    distancia[u] = distancia[v] + dist;
-                    fila_prioridade.push({-distancia[u],u});
-                }
+        // Percorrer as arestas do vértice atual
+        for(auto aresta : grafo[vertice_atual]){
+            int vertice_vizinho = aresta.vertice;    //vertice adjacente
+            int dist = aresta.dist;           //distancia entre os vértices
+
+                //Se encontrarmos um caminho mais curto
+                if(distancia[vertice_vizinho]>distancia[vertice_atual]+dist){
+                    distancia[vertice_vizinho] = distancia[vertice_atual] + dist;   //Atualiza distancia com o caminho mais curto
+                    fila_prioridade.push({vertice_vizinho,-distancia[vertice_vizinho]});
             }
         }
     }
-    if(distancia[vertice_destino]!=INF)
-        cout << distancia[vertice_destino] << endl;
+    //Se a distancia minima encontrada não for infinito, quer dizer que existe um caminho 
+    if(distancia[index_vertice_destino_par]!=INF)
+        cout << distancia[index_vertice_destino_par] << endl;
+    //Senão, quer dizer que não existe caminho e da como saida -1
     else
         cout << -1 << endl;
 }

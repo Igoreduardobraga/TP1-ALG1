@@ -1,47 +1,27 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include "graph.hpp"
+
 using namespace std;
-typedef pair<int, int> pii;
-const int INF = 0x3f3f3f3f;
-
-vector<pii> adj[100005];
-int dist[100005][2];
-
-int dijkstra(int s, int d) {
-    priority_queue<pair<int, pii>, vector<pair<int, pii>>, greater<pair<int, pii>>> pq;
-    memset(dist, INF, sizeof(dist));
-    dist[s][0] = 0;
-    pq.push(make_pair(0, make_pair(s, 0)));
-    while (!pq.empty()) {
-        int u = pq.top().second.first;
-        int p = pq.top().second.second;
-        int d = pq.top().first;
-        pq.pop();
-        if (dist[u][p] < d) continue;
-        for (auto v : adj[u]) {
-            int to = v.first;
-            int len = v.second;
-            if (dist[to][p^1] > dist[u][p] + len) {
-                dist[to][p^1] = dist[u][p] + len;
-                pq.push(make_pair(dist[to][p^1], make_pair(to, p^1)));
-            }
-        }
-    }
-    return dist[d][0] == INF ? -1 : dist[d][0];
-}
 
 int main() {
-    int n, m;
-    cin >> n >> m;
-    for (int i = 0; i < m; i++) {
-        int u, v, w;
-        cin >> u >> v >> w;
-        if(w % 2 != 0)
+    int numero_cidades;
+    int numero_estradas;
+    int primeira_cidade, segunda_cidade, distancia;
+
+    //Coleta a quantidade de vertices e arestas do grafo
+    cin >> numero_cidades >> numero_estradas;
+
+    //Cria o grafo com o numero de vertices igual ao numero de cidades
+    Graph grafo(numero_cidades);
+
+    //Percorre o grafo e coleta as arestas e pesos
+    for(int i=0 ; i<numero_estradas ; i++){
+        cin >> primeira_cidade >> segunda_cidade >> distancia;
+        //Se a aresta tiver comprimento impar, ignore
+        if(distancia % 2 != 0)
             continue;
-        u--; v--;
-        adj[u].push_back(make_pair(v, w));
-        adj[v].push_back(make_pair(u, w));
+        grafo.adicionarAresta(primeira_cidade-1,segunda_cidade-1,distancia);
     }
-    int ans = dijkstra(0, n-1);
-    cout << ans << endl;
-    return 0;
+
+    grafo.dijkstra(0,numero_cidades-1);
 }
